@@ -63,7 +63,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_redis',
     'django_filters',
-    "django_extensions",
+
+    # apps
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -211,7 +213,7 @@ LOGGING = {
 }
 
 
-#AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "core.User"
 
 
 REST_FRAMEWORK = {
