@@ -1,0 +1,82 @@
+version: '3.8'
+
+
+services:
+
+  nginx:
+    build: ./compose/nginx
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - web
+    links:
+      - web
+    volumes:
+      - ./src/media:/home/app/media
+      - ./src/static_files:/home/app/static_files
+    networks:
+      - frontend
+
+  web:
+    build:
+      context: .
+      dockerfile: compose/django/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - ./src:/home/app
+      - ./src/media:/home/app/media
+    expose:
+      - "8000"
+    links:
+      - redis
+    env_file:
+      - ./.envs/.env
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+    networks:
+      - frontend
+      - backend
+
+  db:
+    build:
+      context: .
+      dockerfile: compose/postgres/Dockerfile
+    container_name: pg01
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.envs/.postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    container_name: redis01
+    command: >
+      sh -c 'redis-server --appendonly yes --requirepass 123456'
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+  
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
