@@ -15,10 +15,8 @@ gunicorn
 uvicorn
 redis
 virtualenv
-django_filter
 django-debug-toolbar
 debugpy
-django-rest-auth
 django_extensions
-
-
+pandas
+numpy

@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     'celery',
     'corsheaders',
     'django_redis',
-    'django_filters',
 
     # apps
     'core',
@@ -139,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = "tr"
+LANGUAGE_CODE = "en"
 
 TIME_ZONE = "Europe/Istanbul"
 
@@ -220,11 +219,7 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": 'core.exceptions.custom_exception_handler',
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated", ],
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",

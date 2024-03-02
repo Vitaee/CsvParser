@@ -31,6 +31,9 @@ done
 python manage.py makemigrations
 python manage.py migrate
 #python manage.py create_default_user
+# python manage.py collectstatic
+#python manage.py runserver 0.0.0.0:8000 & celery -A prj worker --loglevel=debug & celery -A prj beat -l debug
 
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000 
+
 exec "$@"
