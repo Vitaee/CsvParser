@@ -3,10 +3,10 @@ name: Django CI
 on:
   push:
     branches:
-      - notready
+      - main
   pull_request:
     branches:
-      - notready
+      - main
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest
+        python manage.py test
 
     - name: Collect test results
       uses: actions/upload-artifact@v2
