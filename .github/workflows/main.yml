@@ -39,11 +39,11 @@ jobs:
 
     - name: Set up database
       run: |
-        python manage.py migrate --noinput
+        python src/manage.py migrate --noinput
 
     - name: Run tests
       run: |
-        python manage.py test
+        python src/manage.py test
 
     - name: Collect test results
       uses: actions/upload-artifact@v4
