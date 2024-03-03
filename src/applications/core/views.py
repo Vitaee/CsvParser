@@ -3,25 +3,27 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import status, viewsets
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
-from core.serializers import UserSerializer, UserDetailSerializer, UserCSVSerializer, CSVSerializer
-from core.models import User
+from core.serializers import UserAuthSerializer, UserDetailSerializer, UserCSVSerializer
+from .models import User
 from core.utils import create_users_from_csv_parallel
 from django.db.models import F, Value
 from django.db.models.functions import Concat
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 from django.db import models
+from django.http import HttpResponse
+from django.core import serializers 
 
 
 """
 Basic Authentication
 """
 class UserRegistrationView(CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserAuthSerializer
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -86,38 +88,17 @@ class UserCSVUploadAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-class UserFilterAPIView(viewsets.ModelViewSet):
-    serializer_class = CSVSerializer
-    pagination_class = PageNumberPagination
+def UserFilter(request):
+    search_term = request.GET.get('q')
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        paginator = PageNumberPagination()
-        paginated_queryset = paginator.paginate_queryset(queryset, request)
-        serializer = self.get_serializer(paginated_queryset, many=True)
-        response = paginator.get_paginated_response(serializer.data)        
-        
-        total_page_count = paginator.page.paginator.num_pages
-        response.data["total_page_count"] = total_page_count
-        
-        data = {
-            "data": response.data,
-            "error_message":  None,
-            "error_type": None
-        }
-
-        return Response(data=data)
-    
-    
-    def get_queryset(self):
-        search_term = self.request.query_params.get('q', '')
-
-        qs = User.objects.annotate(
+    data = User.objects.annotate(
             full_name_address=Concat(F('first_name'), Value(' '), F('last_name'), Value(' '), F('address'), output_field=models.TextField())
         ).annotate(
             search=SearchVector('first_name', 'last_name', 'address')
         ).annotate(
             rank=SearchRank('search', SearchQuery(search_term))
-        ).filter(search=SearchQuery(search_term)).order_by('-rank', 'date_of_birth')
+    ).filter(search=SearchQuery(search_term)).order_by('-rank', 'date_of_birth')
 
-        return qs
+    data = serializers.serialize('json', data, fields=('first_name', 'last_name', 'address')) 
+
+    return HttpResponse(data, content_type="application/json")

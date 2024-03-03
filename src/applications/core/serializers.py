@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from core.models import User
+from .models import User
 import pandas as pd
 
-class UserSerializer(serializers.ModelSerializer):
+class UserAuthSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
@@ -13,7 +13,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username')
+        fields = ['username']
 
 
 class UserCSVSerializer(serializers.Serializer):
@@ -24,9 +24,3 @@ class UserCSVSerializer(serializers.Serializer):
             raise serializers.ValidationError("The uploaded file is empty")
 
         return value
-    
-
-class CSVSerializer(serializers.Serializer):
-    class Meta:
-        model = User
-        fields = '__all__'
