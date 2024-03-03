@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.authentication import TokenAuthentication
-from rest_framework import status, viewsets
+from rest_framework import status
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from core.serializers import UserAuthSerializer, UserDetailSerializer, UserCSVSerializer
@@ -88,6 +89,9 @@ class UserCSVUploadAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def UserFilter(request):
     search_term = request.GET.get('q')
 
